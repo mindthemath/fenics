@@ -38,9 +38,7 @@ There is an unused patch for `petsc` and `slepsc` which is included "just in cas
 - [ ] cover all python versions shown by following output (list built from [docker hub](https://hub.docker.com/_/python?tab=tags)):
 
 ```sh
-echo {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-{bullseye,buster}
-echo 3.{7..8}.{4..10}-buster
-echo 3.6.{9..13}-buster
+echo 3.6.{9..13}-buster 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-{bullseye,buster} | sort
 ```
 
 # contributions

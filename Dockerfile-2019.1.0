@@ -32,7 +32,6 @@ RUN cd /tmp/src/ && \
 	git clone --branch=$FENICS_VERSION https://bitbucket.org/fenics-project/dolfin 
 COPY *.patch /tmp/src/dolfin/
 RUN cd /tmp/src/dolfin && \
-	git revert 8e92f6ee1bb004ab95d9f0788eab25a2b7c45010 && \
 	git am algorithm.patch && \
 	git am boost.patch && \
 	cd .. && \
