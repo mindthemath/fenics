@@ -11,6 +11,7 @@ latest:
 
 SHELL=bash
 # docker buildx build --platform linux/amd64,linux/arm64
+# {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-{bullseye,buster} 3.{7..8}.{4..10}-buster 3.6.{9..13}-buster
 buster:
 	# for TAG in $(shell echo 3.6.{9..13}-buster 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-buster | sort); do
 	for TAG in $(shell echo 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-buster | sort); do \

@@ -19,7 +19,6 @@ RUN apt-get update -yqq && \
 	apt-get -qq clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip install numpy scipy
 # fenics
 RUN pip install -U fenics-ffc
 ENV FENICS_VERSION=2019.1.0
