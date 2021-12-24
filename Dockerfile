@@ -19,7 +19,20 @@ RUN apt-get update -yqq && \
 	apt-get -qq clean && \
 	rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update -yqq && \
+	apt-get install -yqq \
+	git \
+	python3-dev \
+	python3-pip \
+	&& \
+	apt-get -qq purge && \
+	apt-get -qq clean && \
+	rm -rf /var/lib/apt/lists/*
+
 # fenics
+# the python version of `ffc` should not matter, used by
+# cmake/scripts/generate-form-files.py
+RUN pip install -U fenics-ffc
 RUN mkdir -p /tmp/src/
 RUN git config --global user.email mm@clfx.cc
 RUN git config --global user.name mm
@@ -54,6 +67,13 @@ RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
 
 FROM docker.io/python:${PYTHON_TAG} AS python-bindings
 ENV PYBIND11_VERSION=2.2.3
+RUN apt-get update -yqq && \
+	apt-get install -yqq \
+	cmake \
+	&& \
+	apt-get -qq purge && \
+	apt-get -qq clean && \
+	rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
 	wget -nc --quiet https://github.com/pybind/pybind11/archive/v${PYBIND11_VERSION}.tar.gz && \
