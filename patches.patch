@@ -1,0 +1,117 @@
+From 7f90c25d4e8ff48cbd0241afb74f530392408f74 Mon Sep 17 00:00:00 2001
+From: mm <mm@clfx.cc>
+Date: Sun, 26 Dec 2021 18:56:23 +0000
+Subject: [PATCH] apply patches for bullseye
+
+---
+ cmake/modules/FindPETSc.cmake                | 2 +-
+ cmake/modules/FindSLEPc.cmake                | 2 +-
+ dolfin/geometry/IntersectionConstruction.cpp | 1 +
+ dolfin/io/VTKFile.cpp                        | 5 ++---
+ dolfin/io/VTKWriter.cpp                      | 1 -
+ dolfin/mesh/MeshFunction.h                   | 1 +
+ python/setup.py                              | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/cmake/modules/FindPETSc.cmake b/cmake/modules/FindPETSc.cmake
+index 80faffdad..728a6ec30 100644
+--- a/cmake/modules/FindPETSc.cmake
++++ b/cmake/modules/FindPETSc.cmake
+@@ -51,7 +51,7 @@ find_package(PkgConfig REQUIRED)
+ 
+ # Find PETSc pkg-config file. Note: craypetsc_real is on Cray systems
+ set(ENV{PKG_CONFIG_PATH} "$ENV{CRAY_PETSC_PREFIX_DIR}/lib/pkgconfig:$ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/lib/pkgconfig:$ENV{PETSC_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+-pkg_search_module(PETSC craypetsc_real PETSc)
++pkg_search_module(PETSC craypetsc_real petsc PETSc)
+ 
+ # Extract major, minor, etc from version string
+ if (PETSC_VERSION)
+diff --git a/cmake/modules/FindSLEPc.cmake b/cmake/modules/FindSLEPc.cmake
+index 327cffc23..dec26fcc4 100644
+--- a/cmake/modules/FindSLEPc.cmake
++++ b/cmake/modules/FindSLEPc.cmake
+@@ -48,7 +48,7 @@ find_package(PkgConfig REQUIRED)
+ set(ENV{PKG_CONFIG_PATH} "$ENV{SLEPC_DIR}/$ENV{PETSC_ARCH}/lib/pkgconfig:$ENV{SLEPC_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+ set(ENV{PKG_CONFIG_PATH} "$ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/lib/pkgconfig:$ENV{PETSC_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+ set(ENV{PKG_CONFIG_PATH} "$ENV{PETSC_DIR}/$ENV{PETSC_ARCH}:$ENV{PETSC_DIR}:$ENV{PKG_CONFIG_PATH}")
+-pkg_search_module(SLEPC crayslepc_real SLEPc)
++pkg_search_module(SLEPC crayslepc_real slepc SLEPc)
+ 
+ # Extract major, minor, etc from version string
+ if (SLEPC_VERSION)
+diff --git a/dolfin/geometry/IntersectionConstruction.cpp b/dolfin/geometry/IntersectionConstruction.cpp
+index 765dbb674..7ba99a8a8 100644
+--- a/dolfin/geometry/IntersectionConstruction.cpp
++++ b/dolfin/geometry/IntersectionConstruction.cpp
+@@ -18,6 +18,7 @@
+ // First added:  2014-02-03
+ // Last changed: 2017-12-12
+ 
++#include <algorithm>
+ #include <iomanip>
+ #include <dolfin/mesh/MeshEntity.h>
+ #include "predicates.h"
+diff --git a/dolfin/io/VTKFile.cpp b/dolfin/io/VTKFile.cpp
+index 2fee53b7b..4dba84d1c 100644
+--- a/dolfin/io/VTKFile.cpp
++++ b/dolfin/io/VTKFile.cpp
+@@ -20,7 +20,6 @@
+ #include <vector>
+ #include <iomanip>
+ #include <boost/cstdint.hpp>
+-#include <boost/detail/endian.hpp>
+ 
+ #include "pugixml.hpp"
+ 
+@@ -614,9 +613,9 @@ void VTKFile::vtk_header_open(std::size_t num_vertices, std::size_t num_cells,
+   std::string endianness = "";
+   if (encode_string == "binary")
+   {
+-    #if defined BOOST_LITTLE_ENDIAN
++    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+     endianness = "byte_order=\"LittleEndian\"";
+-    #elif defined BOOST_BIG_ENDIAN
++    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+     endianness = "byte_order=\"BigEndian\"";;
+     #else
+     dolfin_error("VTKFile.cpp",
+diff --git a/dolfin/io/VTKWriter.cpp b/dolfin/io/VTKWriter.cpp
+index eff693472..b57a66583 100644
+--- a/dolfin/io/VTKWriter.cpp
++++ b/dolfin/io/VTKWriter.cpp
+@@ -24,7 +24,6 @@
+ #include <sstream>
+ #include <vector>
+ #include <iomanip>
+-#include <boost/detail/endian.hpp>
+ 
+ #include <dolfin/fem/GenericDofMap.h>
+ #include <dolfin/fem/FiniteElement.h>
+diff --git a/dolfin/mesh/MeshFunction.h b/dolfin/mesh/MeshFunction.h
+index d29c13b4a..2fab186c7 100644
+--- a/dolfin/mesh/MeshFunction.h
++++ b/dolfin/mesh/MeshFunction.h
+@@ -27,6 +27,7 @@
+ #include <map>
+ #include <vector>
+ 
++#include <algorithm>
+ #include <memory>
+ #include <unordered_set>
+ #include <dolfin/common/Hierarchical.h>
+diff --git a/python/setup.py b/python/setup.py
+index 5105d14a0..c9308f72b 100644
+--- a/python/setup.py
++++ b/python/setup.py
+@@ -15,7 +15,7 @@ if sys.version_info < (3, 5):
+ 
+ VERSION = "2019.2.0.dev0"
+ RESTRICT_REQUIREMENTS = ">=2019.2.0.dev0,<2019.3"
+-UFL_RESTRICT_REQUIREMENTS = ">=2021.1.0" # UFL 2019.2.0.dev0 does not exist
++UFL_RESTRICT_REQUIREMENTS = ">=2019.2.0.dev0" # UFL 2019.2.0.dev0 does not exist
+ 
+ REQUIREMENTS = ["numpy",
+                 "pkgconfig",
+-- 
+2.30.2
+

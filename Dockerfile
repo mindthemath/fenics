@@ -20,8 +20,8 @@ RUN apt-get update -yqq && \
 	rm -rf /var/lib/apt/lists/*
 
 # fenics
-RUN git config --global user.email mm@clfx.cc
-RUN git config --global user.name mm
+RUN git config --global user.email fenics@dockerhost
+RUN git config --global user.name fenics
 
 RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
 	git clone https://bitbucket.org/fenics-project/ufl && \
@@ -36,29 +36,25 @@ RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
 	pip install . && cd .. && \
 	rm -rf /tmp/src/*
 
-#RUN apt-get update -yqq && apt-get install libopenmpi-dev
-RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
-	git clone https://bitbucket.org/fenics-project/dolfin
-COPY patches.patch /tmp/src/dolfin/
-RUN cd /tmp/src/dolfin && \
-	git checkout 3eacdb46ed4e6dcdcbfb3b2f5eefa73f32e1b8a8 && \
-	git am patches.patch && \
-	cd .. && \
-	mkdir dolfin/build && cd dolfin/build && \
-	cmake .. && make install
-
 ENV PYBIND11_VERSION=2.4.3
-
 RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
 	wget -nc --quiet https://github.com/pybind/pybind11/archive/v${PYBIND11_VERSION}.tar.gz && \
 	tar -xf v${PYBIND11_VERSION}.tar.gz && \
 	cd pybind11-${PYBIND11_VERSION} && \
 	mkdir build && cd build && \
-	cmake -DPYBIND11_TEST=off .. && make install && \
-	rm -rf v${PYBIND11_VERSION}.tar.gz
+	cmake -DPYBIND11_TEST=off .. && make install && cd / && \
+	rm -rf /tmp/src/*
 
-RUN cd /tmp/src/dolfin/python && \
-	pip3 install .
+COPY patches.patch /tmp/latest.patch
+RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
+	git clone https://bitbucket.org/fenics-project/dolfin && \
+	cd dolfin && \
+	git checkout 3eacdb46ed4e6dcdcbfb3b2f5eefa73f32e1b8a8 && \
+	git am /tmp/latest.patch && \
+	mkdir build && cd build && \
+	cmake .. && make install && cd .. && \
+	cd python && pip3 install . && cd / && \
+	rm -rf /tmp/src/*
 
 # mshr
 RUN apt-get update -yqq && \
@@ -70,14 +66,14 @@ RUN apt-get update -yqq && \
 	apt-get -qq clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN cd /tmp/src/ && \
+RUN mkdir -p /tmp/src/ && cd /tmp/src/ && \
 	git clone https://bitbucket.org/fenics-project/mshr && \
-	cd mshr && git checkout c27eb18f47cb35d27c863c2db584915659e64c7f && cd .. && \
+	cd mshr && \
+	git checkout c27eb18f47cb35d27c863c2db584915659e64c7f && \
 	. /usr/local/share/dolfin/dolfin.conf && \
-	mkdir mshr/build && cd mshr/build && \
-	cmake .. && make install
-
-RUN cd /tmp/src/mshr/python && \
-	pip3 install .
+	mkdir build && cd build && \
+	cmake .. && make install && cd .. && \
+	cd python && pip3 install . && cd / && \
+	rm -rf /tmp/src/*
 
 RUN echo ". /usr/local/share/dolfin/dolfin.conf" >> /root/.bashrc
