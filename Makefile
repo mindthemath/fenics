@@ -7,22 +7,35 @@ build: 2019.1.0
 	docker build -t fenics -t fenics-2019.1.0.post0 -f Dockerfile-2019.1.0.post0 .
 
 SHELL=bash
-# docker buildx build --platform linux/amd64,linux/arm64
+# docker buildx build --platform linux/amd64,linux/amd64
 # {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-{bullseye,buster} 3.{7..8}.{4..10}-buster 3.6.{9..13}-buster
-all:
-	# for TAG in $(shell echo 3.6.{9..13}-buster 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-buster | sort); do
-	for TAG in $(shell echo {3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-bullseye | sort); do \
-		VER=2019.1.0.post0;\
-		echo BUILDING $$VER-$$TAG; \
-		docker pull mindthemath/fenics-arm64:$$VER-$$TAG; \
+2019.1.0:
+	for TAG in $(shell echo 3.6.{9..13}-buster 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-buster | sort); do \
+		VER=2019.1.0;\
+		echo BUILDING mindthemath/fenics-amd64:$$VER-$$TAG; \
 		docker build \
-			-t mindthemath/fenics-arm64:$$VER-$$TAG \
+			-t mindthemath/fenics-amd64:$$VER-$$TAG \
 			--build-arg PYTHON_TAG=$$TAG \
-			-f Dockerfile-$$VER . && \
-		docker push mindthemath/fenics-arm64:$$VER-$$TAG && \
-		docker rmi mindthemath/fenics-arm64:$$VER-$$TAG || exit; \
-		yes | docker system prune; \
+			--build-arg FENICS_VERSION=$$VER \
+			-f Dockerfile-2019.1.0 . && \
+		docker push mindthemath/fenics-amd64:$$VER-$$TAG || exit; \
 	done
+		#docker rmi mindthemath/fenics-amd64:$$VER-$$TAG || exit;
+
+2019.1.0.post0:
+	for TAG in $(shell echo 3.6.{9..13}-buster 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-{buster,bullseye} | sort); do \
+		VER=2019.1.0.post0;\
+		echo BUILDING mindthemath/fenics-amd64:$$VER-$$TAG; \
+		docker build \
+			-t mindthemath/fenics-amd64:$$VER-$$TAG \
+			--build-arg PYTHON_TAG=$$TAG \
+			--build-arg FENICS_VERSION=$$VER \
+			-f Dockerfile-2019.1.0 . && \
+		docker push mindthemath/fenics-amd64:$$VER-$$TAG || exit; \
+	done
+		#docker rmi mindthemath/fenics-amd64:$$VER-$$TAG || exit;
+
+all: 2019.1.0 2019.1.0.post0
 
 buster:
 	docker build \
