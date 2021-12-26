@@ -1,4 +1,5 @@
-FROM docker.io/python:3.9.7-bullseye
+ARG PYTHON_TAG
+FROM docker.io/python:$PYTHON_TAG
 
 ARG DEBIAN_FRONTEND=noninteractive
 # dolfin
