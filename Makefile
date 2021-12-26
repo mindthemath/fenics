@@ -14,6 +14,7 @@ SHELL=bash
 			-f Dockerfile-2019.1.0 . && \
 		docker push mindthemath/fenics-arm64:$$VER-$$TAG && \
 		docker rmi mindthemath/fenics-arm64:$$VER-$$TAG || exit; \
+		yes | docker system prune; \
 	done
 
 2019.1.0.post0:
@@ -27,10 +28,11 @@ SHELL=bash
 			-f Dockerfile-2019.1.0 . && \
 		docker push mindthemath/fenics-arm64:$$VER-$$TAG && \
 		docker rmi mindthemath/fenics-arm64:$$VER-$$TAG || exit; \
+		yes | docker system prune; \
 	done
 
 2019.2.0.dev0:
-	for TAG in $(shell echo 3.6.{9..13}-buster 3.{7..8}.{4..10}-buster {3.6.{14..15},3.{7..8}.{11..12},3.9.{6..9},3.10.{0..1}}-{buster,bullseye} | sort); do \
+	for TAG in $(shell cat 2019.2.0.dev0.txt); do \
 		VER=2019.2.0.dev0;\
 		echo BUILDING mindthemath/fenics-arm64:$$VER-$$TAG; \
 		docker build \
@@ -39,9 +41,10 @@ SHELL=bash
 			-f Dockerfile . && \
 		docker push mindthemath/fenics-arm64:$$VER-$$TAG && \
 		docker rmi mindthemath/fenics-arm64:$$VER-$$TAG || exit; \
+		yes | docker system prune; \
 	done
 
-all: 2019.1.0 2019.1.0.post0 2019.2.0.dev0
+all: 2019.2.0.dev0 2019.1.0.post0 2019.1.0
 
 buster:
 	docker build \
